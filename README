@@ -23,3 +23,5 @@ expdb           - A folder contains info about the expiration dates for clients.
 kill-expired.sh - A script to kill the expired users based on the expdb folder.
 scripts         - A folder that contains the scripts which creats/handles users.
 
+
+To start the installation chmod +x install.sh && ./install.sh and follow the steps
