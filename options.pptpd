@@ -1,0 +1,9 @@
+name VPN-Platform
+proxyarp
+debug
+lock
+nobsdcomp 
+novj
+novjccomp
+nologfd
+ms-dns 10.0.12.1

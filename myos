@@ -1,0 +1,4 @@
+os_type='debian-linux'
+os_version='6.0'
+real_os_type='Ubuntu Linux'
+real_os_version='11.10'

@@ -1,0 +1,2 @@
+myorg=`cat /root/vpnplatform/.myorg`
+$myorg Users Management Log:
