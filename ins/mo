@@ -1,0 +1,5 @@
+for i in `cat mod`
+do
+sed -i 's/vpnportal/vpnplatform/g' $i
+done
+

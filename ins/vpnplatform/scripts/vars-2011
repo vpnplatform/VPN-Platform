@@ -1,0 +1,6 @@
+export KEY_CONFIG=/root/vpnplatform/scripts/openssl3.cnf
+export D=/root/vpnplatform/scripts
+export KEY_DIR=/etc/openvpn/
+export KEY_SIZE=1024
+export cipher=AES-256-CBC
+export KEY_EMAIL="$2"

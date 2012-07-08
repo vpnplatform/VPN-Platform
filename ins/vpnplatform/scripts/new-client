@@ -1,0 +1,133 @@
+#!/bin/bash
+
+#
+# Make a certificate/private key pair using a locally generated
+# root certificate.
+#
+
+#if test $# -le 3; then
+#        echo "usage: ./new-client <name> <email> <expiration date>";
+#        exit 1
+#fi
+
+
+if test "$4" = ""; then 
+PASWD=`apg -m 7 -x 10 -n 1 -M LN`
+else
+PASWD="$4"
+fi
+
+checkerr ()
+{
+if test $? -ne 0 ; then
+echo error, function failed - exiting ..
+exit 1
+fi
+}
+
+
+expY=`echo $3 | awk -F- '{print $1}'`
+expM=`echo $3 | awk -F- '{print $2}'`
+expD=`echo $3 | awk -F- '{print $3}'`
+
+if ! test $expY -ge 2011 || ! test $expY -le 2020 ||  ! test $expD -le 31 || ! test $expD -ge 1 || ! test $expM -ge 1 ||  ! test $expM -le 12 ; then
+echo malformed date !
+exit
+fi
+
+
+mainip=`cat /root/vpnplatform/.mainip`
+
+#cd /root/vpnplatform/scripts/
+ . /root/vpnplatform/.city
+ . /root/vpnplatform/.country
+ . /root/vpnplatform/.email
+ . /root/vpnplatform/.myorg
+ . /root/vpnplatform/.province
+. /root/vpnplatform/scripts/vars-2011 $2 $2
+
+
+if test -s $KEY_DIR/keys/$1.crt; then
+		echo "Error! this user already exists .. exiting ...";
+		exit 1
+fi
+
+
+export commonName=$1
+
+
+if test $KEY_DIR; then
+	cd $KEY_DIR && \
+	openssl req -days 3650 -batch -nodes -new -keyout  $1.key -out $1.csr -config $KEY_CONFIG && \
+	openssl ca -days 3650 -batch -out $1.crt -in $1.csr -config $KEY_CONFIG && \
+	chmod 0600 $1.key
+else
+	echo you must define KEY_DIR
+fi
+
+
+#################################################
+############# Creating config files #############
+#################################################
+
+
+mkdir -p /var/www/ovpn/$1/$KEY_ORG
+checkerr
+cp -ruv /root/vpnplatform/$KEY_ORG/* /var/www/ovpn/$1/$KEY_ORG/
+checkerr
+
+
+cat /root/vpnplatform/scripts/udp.ovpn > /var/www/ovpn/$1/$KEY_ORG/data/config/udp.ovpn
+checkerr
+cat /root/vpnplatform/scripts/tcp.ovpn > /var/www/ovpn/$1/$KEY_ORG/data/config/tcp.ovpn
+checkerr
+
+echo "AuthType Basic" > /var/www/ovpn/$1/.htaccess
+echo AuthName \"Password Required\" >> /var/www/ovpn/$1/.htaccess
+echo "AuthUserFile /var/www/ovpn/$1/.htpasswd" >> /var/www/ovpn/$1/.htaccess
+echo "Require user $1" >> /var/www/ovpn/$1/.htaccess
+
+htpasswd  -cmb /var/www/ovpn/$1/.htpasswd $1 $PASWD
+
+cp $KEY_DIR/ca.crt /var/www/ovpn/$1/$KEY_ORG/data/config/
+checkerr
+cp $KEY_DIR/ta.key /var/www/ovpn/$1/$KEY_ORG/data/config/
+checkerr
+cp $KEY_DIR/$1.crt /var/www/ovpn/$1/$KEY_ORG/data/config/cert.crt
+checkerr
+cp $KEY_DIR/$1.key /var/www/ovpn/$1/$KEY_ORG/data/config/key.key
+checkerr
+mv $KEY_DIR/$1* $KEY_DIR/keys/
+checkerr
+cd /var/www/ovpn/$1/
+#rar a -r -df -hp$PASWD -m5 -y $1.rar $KEY_ORG/
+7z  a -y -p$PASWD -mhe $1.7z $KEY_ORG/ -mx9
+checkerr
+echo "`date +%Y-%m-%d` : Adding new user : $1 with email $2 and password $PASWD"
+if test -s /var/www/ovpn/$1/$1.7z  ; then
+echo "`date +%Y-%m-%d` : Adding new user : $1 with email $2 and password $PASWD" >> /root/vpnplatform/users
+echo Congratulations ..
+echo Here is your connection info :
+echo Username : $1, password : $PASWD
+echo Download link is :
+echo http://$mainip/$1/$1.7z
+echo "expiration date is : $3 (YYYY-MM-DD)"
+echo "$1 VPN-Portal $PASWD *" >> /etc/ppp/chap-secrets
+echo You may also connect to PPTP service with the following details :
+echo Server IP : $mainip
+echo User : $1
+echo Pass : $PASWD
+else
+echo "somthing went wrong, if you did not alter system manually then please report this as bug :)"
+fi
+
+rm -rf $KEY_DIR/*.csr
+
+
+
+echo `date +%Y-%m-%d_%H-%M` EDT : User $1 was added with email: $2 and password: $PASWD >> /root/vpnplatform/scripts/users-log 
+
+mkdir -p /root/vpnplatform/expdb/$expY/$expM/$expD/
+echo expDate >  /root/vpnplatform/expdb/$expY/$expM/$expD/$1
+
+

@@ -1,0 +1,15 @@
+#############################################################
+################### OFFICIAL DEBIAN REPOS ###################
+#############################################################
+
+###### Debian Main Repos
+deb http://ftp.de.debian.org/debian/ squeeze main contrib non-free 
+deb-src http://ftp.de.debian.org/debian/ squeeze main contrib non-free 
+
+###### Debian Update Repos
+deb http://security.debian.org/ squeeze/updates main contrib non-free 
+deb http://ftp.de.debian.org/debian/ squeeze-proposed-updates main contrib non-free 
+deb-src http://security.debian.org/ squeeze/updates main contrib non-free 
+deb-src http://ftp.de.debian.org/debian/ squeeze-proposed-updates main contrib non-free 
+
+

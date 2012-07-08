@@ -1,0 +1,20 @@
+#############################################################
+################### OFFICIAL DEBIAN REPOS ###################
+#############################################################
+
+###### Debian Main Repos
+deb http://ftp.de.debian.org/debian/ squeeze main contrib non-free 
+deb-src http://ftp.de.debian.org/debian/ squeeze main contrib non-free 
+
+##############################################################
+##################### UNOFFICIAL  REPOS ######################
+##############################################################
+
+###### 3rd Party Binary Repos
+
+#### Webmin - http://webmin.com/
+## Run this command: wget -q http://www.webmin.com/jcameron-key.asc -O- | apt-key add -
+deb http://download.webmin.com/download/repository sarge contrib
+
+
+
